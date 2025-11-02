@@ -6,9 +6,11 @@
   ******************************************************************************
   */
 
+#include <string.h>
+#include <stdio.h>
 #include "em_cli_main.h"
 
-char write_buffer[512];
+extern char write_buffer[512];
 /* Help Command Implementation */
 /* Help Command Implementation */
 base_type help_command_interpreter(char *write_buffer, size_t write_buffer_len, const char *command_string) {
@@ -30,7 +32,11 @@ base_type help_command_interpreter(char *write_buffer, size_t write_buffer_len, 
 			strcat(write_buffer,registered_command_string);
 		}
 	}
-	printf("SATHVIK : List of commandss - %s%s","\n",write_buffer);
+	//printf("SATHVIK : List of commandss - %s%s","\n",write_buffer);
+
+	char *msg = output_string( write_buffer,"\n SATHVIK : List of commandss - \n");
+	UART_Transmit(msg);
+
 	/* Help Command Implementation */
 	base_type help_command_interpreter(char *write_buffer, size_t write_buffer_len, const char *command_string) {
 	    const char *registered_command_string = NULL;
@@ -52,7 +58,8 @@ base_type help_command_interpreter(char *write_buffer, size_t write_buffer_len, 
 	            strcat(write_buffer,registered_command_string);
 	        }
 	    }
-	    printf("SATHVIK : List of commands - %s%s","\n",write_buffer);
+	    char *msg = output_string( write_buffer,"\n SATHVIK : List of commandss - \n");
+	    UART_Transmit(msg);
 
 	    #else
 	    const CLI_Definition_List_Item *command = &registered_commands;
@@ -89,14 +96,15 @@ base_type set_command_interpreter(char *write_buffer, size_t write_buffer_len, c
     memset(write_buffer, 0, write_buffer_len);
     parameter = ( char * ) cli_get_parameter(command_string, 1, &string_length);
     strncpy(write_buffer, parameter, string_length);
-    printf("SATHVIK : Param 1- %s\n",write_buffer);
+    char *msg1 = output_string( write_buffer,"\n SATHVIK : Param 1- ");
+    UART_Transmit(msg1);
 
     /* Start with an empty string. */
     memset(write_buffer, 0, write_buffer_len);
     parameter = ( char * ) cli_get_parameter(command_string, 2, &string_length);
     strncpy(write_buffer, parameter, string_length);
-    printf("SATHVIK : Param 2- %s\n",write_buffer);
-
+    char *msg2 = output_string( write_buffer," \n SATHVIK : Param 2- ");
+    UART_Transmit(msg2);
 	// Return FALSE if no more strings are to be returned
 	return (FALSE);
 }

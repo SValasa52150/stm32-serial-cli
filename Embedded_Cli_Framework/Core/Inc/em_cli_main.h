@@ -8,6 +8,8 @@
 #ifndef INC_EM_CLI_MAIN_H_
 #define INC_EM_CLI_MAIN_H_
 
+/*wait time*/
+
 #include <stddef.h>
 #include <stddef.h>
 
@@ -18,6 +20,9 @@ typedef signed char int8_t;
 #define PASS  ((base_type)1)
 #define CUSTOM_CLI_MAX_COMMANDS 10 // Maximum number of commands
 
+#define ARRAY_BASED_COMMAND_REGISTER ((base_type)1)
+//#undef ARRAY_BASED_COMMAND_REGISTER
+#undef DEBUG
 
 /* Command definition structure */
 typedef struct command_line_input {
@@ -26,6 +31,14 @@ typedef struct command_line_input {
 	base_type (*command_interpreter)(char *write_buffer, size_t write_buffer_len, const char *command_string);
 	int8_t expected_number_of_params;
 } cli_command_definition;
+
+#ifndef ARRAY_BASED_COMMAND_REGISTER
+/* List Of Commands */
+typedef struct command_input_list {
+    const CLI_Command_Definition *command_line_definition;
+    struct command_input_list *next;
+} CLI_Definition_List_Item;
+#endif
 
 extern cli_command_definition commands_array[CUSTOM_CLI_MAX_COMMANDS];
 extern base_type command_count;

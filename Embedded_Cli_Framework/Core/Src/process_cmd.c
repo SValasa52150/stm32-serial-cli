@@ -3,6 +3,9 @@
  * @brief   This file contains the implementation of functions responsible for
  *          parsing, validating, and executing commands received via the CLI interface.
  */
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #include "em_cli_main.h"
 
@@ -30,7 +33,9 @@ base_type process_command(const char * const command_input, char *write_buffer, 
 			{
 				if (strncmp (command_input, commands_array[ command_index].command, strlen(commands_array[ command_index].command)) == 0)
 				{
-					printf("SATHVIK : Command received - %s \n", registered_command_string);
+					//printf("SATHVIK : Command received - %s \n", registered_command_string);
+					char *msg = output_string(registered_command_string,"\n SATHVIK : Command received - \n");
+					UART_Transmit(msg);
 
 					/* The command has been found.  Check it has the expected
 					number of parameters.  If expected_number_of_parameters is -1,
@@ -44,7 +49,11 @@ base_type process_command(const char * const command_input, char *write_buffer, 
 						}
 						else
 						{
-							printf("SATHVIK : number of parameters are - 5d \n", commands_array[command_index].expected_number_of_params);
+							//printf("SATHVIK : number of parameters are - \n", commands_array[command_index].expected_number_of_params);
+							char *exp_param_num;
+							asprintf(&exp_param_num, "%d", (commands_array[command_index].expected_number_of_params));
+							char *msg = output_string(exp_param_num,"SATHVIK : number of parameters are - \n");
+							UART_Transmit(msg);
 						}
 					}
 					break;
@@ -57,12 +66,18 @@ base_type process_command(const char * const command_input, char *write_buffer, 
 	if (is_processed == FALSE )
 	{
 		/* The command was found, but the number of parameters with the command was incorrect. */
-		strncpy (write_buffer, "Incorrect command parameter(s).  Enter \"help\" to view a list of available commands.\r\n\r\n", write_buffer_len);
-		printf("%s \n",write_buffer);
+		strncpy (write_buffer, " \n Incorrect command parameter(s).  Enter \"help\" to view a list of available commands.\r\n\r\n", write_buffer_len);
+		//printf("%s \n",write_buffer);
+		UART_Transmit_1(write_buffer);
 	}
 	else if ( ( is_processed == PASS ) && (command_index < command_count))
 	{
-		printf("command index is %d \n", command_index);
+		//printf("command index is %d \n", command_index);
+		char *cmnd_index;
+		char *prefix = "\n command_index is ";
+		asprintf(&cmnd_index, "%d", command_index);
+		char *msg = output_string( cmnd_index,"\n command index is - ");
+		UART_Transmit(msg);
 
 		/* Call the callback function that is registered to this command. */
 		is_processed = commands_array[command_index].command_interpreter (write_buffer, write_buffer_len, command_input);
@@ -76,9 +91,10 @@ base_type process_command(const char * const command_input, char *write_buffer, 
 	}
 	else
 	{
-		strncpy(write_buffer, "command not recognized. Enter 'help' to view a list of available commands.\r\n\r\n", write_buffer_len);
+		strncpy(write_buffer, "\n  command not recognized. Enter 'help' to view a list of available commands.\r\n\r\n", write_buffer_len);
 		is_processed = FALSE;
-		printf("%s\n",write_buffer);
+		//printf("%s\n",write_buffer);
+		UART_Transmit_1(write_buffer);
 	}
 
 	#else /* Linked list based command registry logic from here */
