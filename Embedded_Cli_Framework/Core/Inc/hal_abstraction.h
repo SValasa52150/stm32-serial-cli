@@ -1,6 +1,6 @@
 /*
  * File: hal_abstraction.h
- * Description: Hardware Abstraction Layer interface header file.
+ * Description: Hardware Abstraction interface for Embedded CLI Framework.
  */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
@@ -11,15 +11,23 @@
 extern "C" {
 #endif
 
-/* Includes ------------------------------------------------------------------*/
+/* Standard STM32 HAL include - platform header */
 #include "stm32f1xx_hal.h"
 
+/* Exported types / externs */
 extern UART_HandleTypeDef huart2;
 
-/* Exported functions prototypes ---------------------------------------------*/
+/* Exported functions prototypes */
 void Error_Handler(void);
 
-/* Private defines -----------------------------------------------------------*/
+
+/* Library initialization and system configuration */
+void Init_lib(void);
+void SystemClock_Config(void);
+void GPIO_Init(void);
+void USART2_UART_Init(void);
+
+/* Private defines*/
 #define B1_Pin GPIO_PIN_13
 #define B1_GPIO_Port GPIOC
 #define B1_EXTI_IRQn EXTI15_10_IRQn
@@ -36,10 +44,6 @@ void Error_Handler(void);
 #define SWO_Pin GPIO_PIN_3
 #define SWO_GPIO_Port GPIOB
 
-void Init_lib(void);
-void SystemClock_Config(void);
-void GPIO_Init(void);
-void USART2_UART_Init(void);
 
 #ifdef __cplusplus
 }

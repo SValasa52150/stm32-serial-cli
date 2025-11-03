@@ -15,20 +15,24 @@
   ******************************************************************************
   */
 
-#include <C:\Users\DELL\OneDrive\Desktop\Embedded\stm32_workspace\Embedded_Cli_Framework\Core\Inc\hal_abstraction.h>
-#include "C:\Users\DELL\OneDrive\Desktop\Embedded\stm32_workspace\Embedded_Cli_Framework\Core\Inc\em_cli_main.h"
-#include "C:\Users\DELL\OneDrive\Desktop\Embedded\stm32_workspace\Embedded_Cli_Framework\Core\Inc\jsmn.h"
+#include "hal_abstraction.h"
+#include "em_cli_main.h"
+#include "jsmn.h"
+
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #define WAITTIME 100
 
-base_type command_count = 0;
+base_type_t command_count = 0;
 char write_buffer[512];
 
 int i;
 int r;
 char dest_arr[64];
 jsmn_parser p;
-jsmntok_t t[128]; /* We expect no more than 128 tokens */
+jsmntok_t t[128]; /* Expect no more than 128 tokens */
 
 cli_command_definition commands_array[CUSTOM_CLI_MAX_COMMANDS];
 
@@ -59,7 +63,7 @@ static const char *JSON_STRING =
     "{\"user\": \"johndoe\", \"admin\": false, \"uid\": 1000,\n  "
     "\"groups\": [\"users\", \"wheel\", \"audio\", \"video\"]}";
 
-
+/*compare token string */
 static int jsoneq(const char *json, jsmntok_t *tok, const char *s) {
   if (tok->type == JSMN_STRING && (int)strlen(s) == tok->end - tok->start &&
       strncmp(json + tok->start, s, tok->end - tok->start) == 0) {
@@ -78,13 +82,7 @@ static int jsoneq(const char *json, jsmntok_t *tok, const char *s) {
 
 int main(void)
 {
-
-  /* MCU Configuration--------------------------------------------------------*/
-
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   Init_lib();
-
-  /* Configure the system clock */
   SystemClock_Config();
 
   /* Initialize all configured peripherals */
@@ -95,74 +93,80 @@ int main(void)
   r = jsmn_parse(&p, JSON_STRING, strlen(JSON_STRING), t,
 				   sizeof(t) / sizeof(t[0]));
 
-	if (r < 0) {
-	//printf("Failed to parse JSON: %d\n", r);
-	strcpy(dest_arr, r);
-	char *msg = output_string(dest_arr,"Failed to parse JSON: \n");
-	UART_Transmit(msg);
+	if (r < 0)
+	{
+		//printf("Failed to parse JSON: %d\n", r);
+		strcpy(dest_arr, r);
+		char *msg = output_string(dest_arr,"Failed to parse JSON: \n");
+		UART_Transmit(msg);
 
-	 return 1;
+		 return 1;
 	}
 
 	/* Assume the top-level element is an object */
-	if (r < 1 || t[0].type != JSMN_OBJECT) {
-	UART_Transmit_1("\nObject expected \n");
-	return 1;
+	if (r < 1 || t[0].type != JSMN_OBJECT)
+	{
+		UART_Transmit_1("\nObject expected \n");
+		return 1;
 	}
 
 	/* Loop over all keys of the root object */
-	for (i = 1; i < r; i++) {
-	  if (jsoneq(JSON_STRING, &t[i], "user") == 0) {
-
+	for (i = 1; i < r; i++)
+	{
+	  if (jsoneq(JSON_STRING, &t[i], "user") == 0)
+	  {
 		strncpy(dest_arr, (JSON_STRING + t[i + 1].start), (t[i + 1].end - t[i + 1].start));
 		dest_arr[(t[i + 1].end - t[i + 1].start)] = '\0';
 		char *msg = output_string(dest_arr,"User: \n");
 		UART_Transmit(msg);
-
 		i++;
-	  } else if (jsoneq(JSON_STRING, &t[i], "admin") == 0) {
-		/* We may additionally check if the value is either "true" or "false" */
-
+	  }
+	  else if (jsoneq(JSON_STRING, &t[i], "admin") == 0)
+	  {
 		strncpy(dest_arr, (JSON_STRING + t[i + 1].start), (t[i + 1].end - t[i + 1].start));
 		dest_arr[(t[i + 1].end - t[i + 1].start)] = '\0';
 		char *msg = output_string(dest_arr,"\n- Admin: ");
 		UART_Transmit(msg);
-
 		i++;
-	  } else if (jsoneq(JSON_STRING, &t[i], "uid") == 0) {
-		/* We may want to do strtol() here to get numeric value */
-
+	  }
+	  else if (jsoneq(JSON_STRING, &t[i], "uid") == 0)
+	  {
 		strncpy(dest_arr, (JSON_STRING + t[i+1].start), (t[i+1].end - t[i+1].start));
 		dest_arr[(t[i+1].end - t[i+1].start)] = '\0';
 		char *msg = output_string(dest_arr,"\n- UID: ");
 		UART_Transmit(msg);
-
 		i++;
-	  } else if (jsoneq(JSON_STRING, &t[i], "groups") == 0) {
+	  }
+	  else if (jsoneq(JSON_STRING, &t[i], "groups") == 0)
+	  {
 		int j;
 
 		UART_Transmit_1("- Groups: \n");
-		if (t[i + 1].type != JSMN_ARRAY) {
+		if (t[i + 1].type != JSMN_ARRAY)
+		{
 		  continue; /* We expect groups to be an array of strings */
 		}
-		for (j = 0; j < t[i + 1].size; j++) {
+
+		for (j = 0; j < t[i + 1].size; j++)
+		{
 		  jsmntok_t *g = &t[i + j + 2];
 
 		  strncpy(dest_arr, (JSON_STRING + g->start), (g->end - g->start));
 		  dest_arr[(g->end - g->start)] = '\0';
 		  char *msg = output_string(dest_arr,"\n * ");
 		  UART_Transmit(msg);
-
 		}
-		i += t[i + 1].size + 1;
-	  } else {
 
+		i += t[i + 1].size + 1;
+	  }
+	  else
+	  {
 		strncpy(dest_arr, (JSON_STRING + t[i].start), (t[i].end - t[i].start));
 		dest_arr[(t[i].end - t[i].start)] = '\0';
 		char *msg = output_string(dest_arr,"Unexpected key: \n");
 		UART_Transmit(msg);
-
 	  }
+
 	}
 
   /*register help command*/

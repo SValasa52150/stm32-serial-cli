@@ -4,16 +4,16 @@
  */
 
 #include "em_cli_main.h"
-extern base_type command_count;
+extern base_type_t command_count;
 
-base_type register_command(const cli_command_definition * const command_to_register) {
-	base_type is_registered = FALSE;
+base_type_t register_command(const cli_command_definition * const command_to_register) {
+	base_type_t is_registered = FALSE;
 
 	#ifndef ARRAY_BASED_COMMAND_REGISTER
-    static CLI_Definition_List_Item *last_command_in_list = &registered_commands;
-    CLI_Definition_List_Item *new_list_item;
+    static cli_Definition_List_Item *last_command_in_list = &registered_commands;
+    cli_Definition_List_Item *new_list_item;
     /* Create a new list item that will reference the command being registered. */
-    new_list_item = ( CLI_Definition_List_Item * ) malloc( sizeof( CLI_Definition_List_Item ) );
+    new_list_item = ( cli_Definition_List_Item * ) malloc( sizeof( cli_Definition_List_Item ) );
     #endif
 
     if (command_count < CUSTOM_CLI_MAX_COMMANDS) {
