@@ -63,15 +63,6 @@ static const char *JSON_STRING =
     "{\"user\": \"johndoe\", \"admin\": false, \"uid\": 1000,\n  "
     "\"groups\": [\"users\", \"wheel\", \"audio\", \"video\"]}";
 
-/*compare token string */
-static int jsoneq(const char *json, jsmntok_t *tok, const char *s) {
-  if (tok->type == JSMN_STRING && (int)strlen(s) == tok->end - tok->start &&
-      strncmp(json + tok->start, s, tok->end - tok->start) == 0) {
-    return 0;
-  }
-  return -1;
-}
-
 /**
   * @brief
   * Entry point for the Embedded CLI Framework running on STM32.
@@ -95,7 +86,6 @@ int main(void)
 
 	if (r < 0)
 	{
-		//printf("Failed to parse JSON: %d\n", r);
 		strcpy(dest_arr, r);
 		char *msg = output_string(dest_arr,"Failed to parse JSON: \n");
 		UART_Transmit(msg);
@@ -111,8 +101,12 @@ int main(void)
 	}
 
 	/* Loop over all keys of the root object */
+	json_str_transmit(JSON_STRING, t, r);
+	/*
 	for (i = 1; i < r; i++)
 	{
+
+
 	  if (jsoneq(JSON_STRING, &t[i], "user") == 0)
 	  {
 		strncpy(dest_arr, (JSON_STRING + t[i + 1].start), (t[i + 1].end - t[i + 1].start));
@@ -144,7 +138,7 @@ int main(void)
 		UART_Transmit_1("- Groups: \n");
 		if (t[i + 1].type != JSMN_ARRAY)
 		{
-		  continue; /* We expect groups to be an array of strings */
+		  continue; // We expect groups to be an array of strings
 		}
 
 		for (j = 0; j < t[i + 1].size; j++)
@@ -167,7 +161,7 @@ int main(void)
 		UART_Transmit(msg);
 	  }
 
-	}
+	}*/
 
   /*register help command*/
   register_command(&help_command);
