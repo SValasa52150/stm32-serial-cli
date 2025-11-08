@@ -10,6 +10,11 @@
 
 #include "em_cli_main.h"
 
+static char *exp_param_num;
+static char *cmnd_index;
+
+extern cli_Definition_List_Item registered_commands;
+
 base_type_t process_command(const char * const command_input, char *write_buffer, size_t write_buffer_len)
 {
 	const char *registered_command_string = NULL;
@@ -49,7 +54,6 @@ base_type_t process_command(const char * const command_input, char *write_buffer
 						}
 						else
 						{
-							char *exp_param_num;
 							asprintf(&exp_param_num, "%d", (commands_array[command_index].expected_number_of_params));
 							char *msg = output_string(exp_param_num,"SATHVIK : number of parameters are - \n");
 							UART_Transmit(msg);
@@ -75,7 +79,7 @@ base_type_t process_command(const char * const command_input, char *write_buffer
 	}
 	else if ((is_processed == PASS) && (command_index < command_count))
 	{
-		char *cmnd_index;
+
 		char *prefix = "\n command_index is ";
 		asprintf(&cmnd_index, "%d", command_index);
 		char *msg = output_string( cmnd_index,"\n command index is - ");
@@ -106,7 +110,7 @@ base_type_t process_command(const char * const command_input, char *write_buffer
 	if( curr_command == NULL )
 	{
 		/* Search for the command string in the list of registered commands. */
-		for( curr_command = &registered_commands; curr_command != NULL; curr_command = curr_command->pxNext )
+		for( curr_command = &registered_commands; curr_command != NULL; curr_command = curr_command->next )
 		{
 			registered_command_string = curr_command->command_line_definition->command;
 			command_string_length = strlen( registered_command_string );
@@ -119,20 +123,24 @@ base_type_t process_command(const char * const command_input, char *write_buffer
 			{
 				if (strncmp(command_input, registered_command_string, command_string_length) == 0)
 				{
-					printf("VAMSI : Command received - %s\n",registered_command_string);
+					char *msg = output_string(registered_command_string,"\n SATHVIK : Command received - \n");
+					UART_Transmit(msg);
 					/* The command has been found.  Check it has the expected
 					number of parameters.  If expected_number_of_parameters is -1,
 					then there could be a variable number of parameters and no
 					check is made. */
-					if ((curr_command->command_line_definition->expected_number_of_parameters) >= 0)
+					if ((curr_command->command_line_definition->expected_number_of_params) >= 0)
 					{
-						if (prvGetNumberOfParameters(command_input) != (curr_command->command_line_definition->expected_number_of_parameters))
+						if (get_number_of_parameters(command_input) != (curr_command->command_line_definition->expected_number_of_params))
 						{
 							is_processed = FALSE;
 						}
 						else
 						{
-							printf("VAMSI : Number of parameters are - %d\n",curr_command->command_line_definition->expected_number_of_parameters);
+
+							asprintf(&exp_param_num, "%d", (curr_command->command_line_definition->expected_number_of_params));
+							char *msg = output_string(exp_param_num,"SATHVIK : number of parameters are - \n");
+							UART_Transmit(msg);
 						}
 
 					}
@@ -151,7 +159,7 @@ base_type_t process_command(const char * const command_input, char *write_buffer
 		/* The command was found, but the number of parameters with the command was incorrect. */
 		strncpy( write_buffer, "Incorrect command parameter(s).  Enter \"help\" to view a list of available commands.\r\n\r\n", write_buffer_len );
 		curr_command = NULL;
-		printf("%s\n",write_buffer);
+		UART_Transmit_1(write_buffer);
 	}
 	else if (curr_command != NULL)
 	{
@@ -171,7 +179,7 @@ base_type_t process_command(const char * const command_input, char *write_buffer
 		/* curr_command was NULL, the command was not found. */
 		strncpy( write_buffer, "Command not recognised.  Enter 'help' to view a list of available commands.\r\n\r\n", write_buffer_len );
 		is_processed = FALSE;
-		printf("%s\n",write_buffer);
+		UART_Transmit_1(write_buffer);
 	}
 
 	#endif

@@ -19,7 +19,7 @@ typedef signed char int8_t;
 #define CUSTOM_CLI_MAX_COMMANDS 10 // Maximum number of commands
 
 #define ARRAY_BASED_COMMAND_REGISTER ((base_type_t)1)
-//#undef ARRAY_BASED_COMMAND_REGISTER
+#undef ARRAY_BASED_COMMAND_REGISTER
 #undef DEBUG
 
 /* Command definition structure */
@@ -33,7 +33,7 @@ typedef struct command_line_input {
 #ifndef ARRAY_BASED_COMMAND_REGISTER
 /* List Of Commands */
 typedef struct command_input_list {
-    const CLI_Command_Definition *command_line_definition;
+    const cli_command_definition *command_line_definition;
     struct command_input_list *next;
 } cli_Definition_List_Item;
 #endif
