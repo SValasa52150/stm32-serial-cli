@@ -10,6 +10,7 @@
 #include "em_cli_main.h"
 
 extern char write_buffer[512];
+extern cli_Definition_List_Item registered_commands;
 
 /* Help Command Implementation */
 base_type_t help_command_interpreter(char *write_buffer, size_t write_buffer_len, const char *command_string)
@@ -33,7 +34,7 @@ base_type_t help_command_interpreter(char *write_buffer, size_t write_buffer_len
 			strcat(write_buffer,registered_command_string);
 		}
 	}
-	char *msg = output_string( write_buffer,"\n SATHVIK : List of commandss - \n");
+	char *msg = output_string( write_buffer,"\n SATHVIK : List of commands - \n");
 	UART_Transmit(msg);
 
 	#else
@@ -51,7 +52,8 @@ base_type_t help_command_interpreter(char *write_buffer, size_t write_buffer_len
 			strcat(write_buffer, registered_command_string);
 		}
 	}
-	 printf("VAMSI : List of commands - %s%s","\n",write_buffer);
+	 char *msg = output_string( write_buffer,"\n SATHVIK : List of commands - \n");
+	 UART_Transmit(msg);
 	#endif
 
 	// Return FALSE if no more strings are to be returned

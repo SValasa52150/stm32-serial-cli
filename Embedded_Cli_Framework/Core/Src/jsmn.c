@@ -8,8 +8,6 @@
 extern "C" {
 #endif
 
-//#ifndef JSMN_HEADER
-
 /**
  * Forms the final output string for display over serial console.
  */
@@ -388,8 +386,6 @@ void jsmn_init(jsmn_parser *parser) {
   parser->toksuper = -1;
 }
 
-
-//#endif /* JSMN_HEADER */
 
 #ifdef __cplusplus
 }
